@@ -1,98 +1,95 @@
-<!doctype html>
-<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org"
+      xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" rel="stylesheet"
-          integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG2x" crossorigin="anonymous">
-    <title>USER PAGE</title>
+    <meta charset="UTF-8">
+    <title>Users</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+
 </head>
 <body>
-
-<nav class="navbar navbar-dark bg-dark">
-    <div class="container-fluid">
-        <h4 th:text="${user.getUsername()} + '  With Roles:  ' +  ${user.rolesToString()}" class="navbar-brand">USER</h4>
-        <a href="/logout">
-            <button type="button" class="btn btn-secondary">logout</button>
-        </a>
+<header>
+    <nav class="navbar navbar-dark bg-dark">
+        <div class="container-fluid">
+            <h4 th:text="${user.getUsername()} + '  With Roles:  ' +  ${user.rolesToString()}" class="navbar-brand">
+                USER</h4>
+            <a href="/logout">
+                <button type="button" class="btn btn-secondary">logout</button>
+            </a>
+        </div>
+    </nav>
+</header>
+<!-- основной контейнер -->
+<div class="d-flex align-items-start" style=" height: 93vh; background: #f0f0f0;">
+    <!-- боковая навигация между Admin panel и user page -->
+    <div class="col-md-3 col-xl-2 py-2" style="padding-top: 15px; flex: 1 6; height: 100%; background: white">
+        <ul class="nav nav-pills flex-column mb-auto">
+            <li class="nav-item">
+                <a href="/api/admin" class="nav-link" aria-current="page"
+                >Admin</a>
+            </li>
+            <li class="nav-item">
+                <a href="/api/user" class="nav-link active" aria-current="page">User</a>
+            </li>
+        </ul>
     </div>
-</nav>
+    <div class="tab-content" id="v-pills-tabContent" style="padding: 15px 25px 15px 25px; flex: 5 6; height: 100%;">
+        <div class="tab-pane show active" id="v-pills-user" role="tabpanel" aria-labelledby="v-pills-user-tab">
 
-
-<div class="container-fluid">
-    <div class="row">
-
-        <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
-            <div class="position-sticky pt-3">
-                <ul class="nav nav-pills flex-column">
-                    <li style="display: block" id="btn_admin" class="nav-item">
-                        <a class="nav-link " aria-current="page" href="/admin">
-                            ADMIN
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link active " href="/user">
-                            USER
-                        </a>
-                    </li>
-                </ul>
-            </div>
-        </nav>
-
-
-        <main class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
-            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                <h1 class="h2">USER INFORMATION PAGE </h1>
-            </div>
-            <div>
-                <h2>ABOUT USER</h2>
-                <div class="table-responsive">
-                    <table class="table table-striped table-sm">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title" style="margin: 5px 0">About user</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-striped table-hover">
                         <thead>
                         <tr>
-                            <th>id</th>
+                            <hr style="border: 1px solid darkgrey; margin: auto">
+                        </tr>
+                        <tr>
+                            <th>ID</th>
                             <th>Username</th>
-                            <th>First Name</th>
-                            <th>Last Name</th>
+                            <th>Firstname</th>
+                            <th>Lastname</th>
                             <th>Year of Birth</th>
                             <th>Balance</th>
                             <th>Email</th>
+                            <th>Password</th>
                             <th>Role</th>
-
                         </tr>
                         </thead>
-                        <tbody>
+                        <tbody class="users-table">
+
                         <tr>
-                            <th><p th:text="${user.getId()}"></p></th>
-                            <th><p th:text="${user.getUsername()}"></p></th>
-                            <th><p th:text="${user.getFirstName()}"></p></th>
-                            <th><p th:text="${user.getLastName()}"></p></th>
-                            <th><p th:text="${user.getYearOfBirth()}"></th>
-                            <th><p th:text="${user.getBalance()}"></p></th>
-                            <th><p th:text="${user.getEmail()}"></p></th>
-                            <th>
-                                <div th:each="role : ${user.getRoles()}">
-                                    <p id="role_field" th:text="${role.name.toString()}"></p>
-                                </div>
-                            </th>
+                            <td th:text="${user.getId()}"></td>
+                            <td th:text="${user.getUsername()}"></td>
+                            <td th:text="${user.getFirstName()}"></td>
+                            <td th:text="${user.getLastName()}"></td>
+                            <td th:text="${user.getYearOfBirth()}"></td>
+                            <td th:text="${user.getBalance()}"></td>
+                            <td th:text="${user.getEmail()}"></td>
+                            <td th:text="${user.getPassword()}"></td>
+                            <td th:text="${user.getRoles()}"></td>
                         </tr>
+
+
                         </tbody>
                     </table>
+                    <br/>
+
                 </div>
             </div>
-        </main>
+        </div>
     </div>
-
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"
+        integrity="sha384-7+zCNj/IqJ95wo16oMtfsKbZ9ccEh31eOz1HGyDuCQ6wgnyJNSYdrPa03rtR1zdB"
+        crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js"
+        integrity="sha384-QJHtvGhmr9XOIpI6YVutG+2QOK9T+ZnN4kzFN1RtK3zEFEIsxhlmWl5/YESvpZ13"
+        crossorigin="anonymous"></script>
+
 </body>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-alpha1/js/bootstrap.bundle.min.js"></script>
-<script>
-    if (document.getElementById("role_field").textContent.includes("ROLE_ADMIN")) {
-        document.getElementById("btn_admin").style.display = "block"
-    } else {
-        document.getElementById("btn_admin").style.display = "none"
-    }
-</script>
-<script src="../static/adminPage.js"></script>
 </html>

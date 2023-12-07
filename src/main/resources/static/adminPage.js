@@ -1,224 +1,175 @@
-let URL = "http://localhost:8080/api/user";
-const roleUrl = 'http://localhost:8080/api/roles';
+const URL = "http://localhost:8080/api/users";
 
+const roleList = []
+$(document).ready( function () {
+    getAllUsers();
+    fetch("http://localhost:8080/api/roles")
+        .then(response => response.json())
+        .then(roles => {
+            roles.forEach(role => {
+                roleList.push(role)
+            })
+        })
+})
+function getAllUsers() {
+    const usersTable = $('.users-table')
+    usersTable.empty()
+    fetch(URL)
+        .then(response => response.json())
+        .then(users => {
+            users.forEach(user => {
+                let row = `$(
+                    <tr>
+                        <td>${user.id}</td>
+                        <td>${user.username}</td>
+                        <td>${user.firstName}</td>
+                        <td>${user.lastName}</td>
+                        <td>${user.yearOfBirth}</td>
+                        <td>${user.balance}</td>
+                        <td>${user.email}</td>
+                        <td>${user.password}</td>
+                        <td>${user.roles.map(r => r.name.substring(5))}</td>  
+                        <td>
+                            <button type="button" class="btn btn-info text-white" data-bs-toggle="modal"
+                            onclick="showEditModal(${user.id})">Edit</button>
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-danger" data-bs-toggle="modal" 
+                            onclick="showDeleteModal(${user.id})">Delete</button>
+                        </td>
+                    </tr>
+                )`
+                usersTable.append(row)
+            })
+        })
+        .catch(err => console.log(err))
+}
+//NEW USER
 
-const selectRoleForm = document.getElementById('roles');
+function newUser(){
+    let newUserForm = $('#new-user-form')[0]
+    fillRoles(newUserForm);
+    newUserForm.addEventListener("submit", (ev) => {
+        ev.preventDefault()
+        ev.stopPropagation()
 
-fetch(roleUrl)
-    .then(res => res.json())
-    .then(data => {
-        console.log(data)
-        let options = '';
-        for (const [k, v] of Object.entries(data)) {
-            options += `<option value="${Number(k) + 1}">${v.name}</option>`;
-        }
-        selectRoleForm.innerHTML = options;
-        console.log(options)
+        let newUser = JSON.stringify({
+            username:  $(`[name="username"]` , newUserForm).val(),
+            firstName:  $(`[name="firstName"]` , newUserForm).val(),
+            lastName:  $(`[name="lastName"]` , newUserForm).val(),
+            yearOfBirth:  $(`[name="yearOfBirth"]` , newUserForm).val(),
+            balance:  $(`[name="balance"]` , newUserForm).val(),
+            email:  $(`[name="email"]` , newUserForm).val(),
+            password:  $(`[name="password"]` , newUserForm).val(),
+            roles: getRole(newUserForm)
+        })
+        fetch(URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: newUser
+        }).then(r => {
+            newUserForm.reset()
+            if(!r.ok) {
+                alert("User with this username already exist!!")
+            }else {
+                $('#users-table-tab')[0].click()
+            }
+        })
     })
-
-
-let userTable = document.querySelector(".body__list");
-let outputUser = "";
-let roleLet;
-
-const renderTable = (user) => {
-    user.forEach(user => {
-        roleLet = "";
-        user.role.forEach((role) => roleLet += role.name + " || ");
-        outputUser += `
-              <tr >
-                <th><p>${user.id} </p></th>
-                <th><p>${user.username} </p></th>
-                <th><p>${user.firstName} </p></th>
-                <th><p>${user.lastName} </p></th>
-                <th><p>${user.yearOfBirth} </p></th>
-                <th><p>${user.balance} </p></th>
-                <th><p>${user.email} </p></th>
-                <th><p>${roleLet.slice(0, roleLet.length - 3)} </p></th>
-                 
-                <th>
-                    <button data-id="${user.id}" type="button" class="btn btn-primary" data-toggle="modal"
-                            data-target="#editModal" id="editbtn">Edit</button>
-                </th>
-                <th>
-                    <button data-id="${user.id}" type="button" class="btn btn-danger " data-toggle="modal"
-                            data-target="#deleteModal" id="delbtn">Delete</button>
-                    </th>
-                </tr>
-            `;
-    });
-    userTable.innerHTML = outputUser;
-
 }
 
-fetch(URL)
-    .then(res => res.json())
-    .then(data => renderTable(data))
+//editModal
 
-fetch(URL)
-    .then(res => res.json())
-    .then(data => renderTable(data))
+function showEditModal(id) {
+    const editModal = new bootstrap.Modal($('.edit-modal'))
+    const editForm = $('#edit-form')[0]
+    showModal(editForm, editModal, id)
+    editForm.addEventListener('submit', (ev) => {
+        ev.preventDefault()
+        ev.stopPropagation()
+        let newUser = JSON.stringify({
+            id: $(`[name="id"]` , editForm).val(),
+            username: $(`[name="username"]` , editForm).val(),
+            firstName:  $(`[name="firstName"]` , editForm).val(),
+            lastName:  $(`[name="lastName"]` , editForm).val(),
+            yearOfBirth:  $(`[name="yearOfBirth"]` , editForm).val(),
+            balance:  $(`[name="balance"]` , editForm).val(),
+            email:  $(`[name="email"]` , editForm).val(),
+            password:  $(`[name="password"]` , editForm).val(),
+            roles: getRole(editForm)
+        })
+        fetch(URL, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: newUser
+        }).then(r => {
+            editModal.hide()
+            $('#users-table-tab')[0].click()
+            if(!r.ok) {
+                alert("User with this username already exist!!")
+            }
+        })
+    })
+}
 
-//  Add user
-let userNameField = document.querySelector(".username__input");
-let firstNameField = document.querySelector(".firstname__input");
-let lastNameField = document.querySelector(".lastname__input");
-let yearOfBirthField = document.querySelector(".yearOfBirth__input");
-let balanceField = document.querySelector(".balance__input");
-let emailField = document.querySelector(".email__input");
-let passwordField = document.querySelector(".password__input");
-let roleById = document.getElementById("roles");
+//deleteModal
+function showDeleteModal(id) {
+    const deleteModal = new bootstrap.Modal($('.delete-modal'))
+    const deleteForm = $('#delete-form')[0]
+    showModal(deleteForm, deleteModal, id)
+    deleteForm.addEventListener('submit', (ev) => {
+        ev.preventDefault()
+        ev.stopPropagation()
+        fetch(URL + `/${$(`[name="id"]` , deleteForm).val()}`, {
+            method: 'DELETE'
+        }).then(r => {
+            deleteModal.hide()
+            $('#users-table-tab')[0].click()
+            if(!r.ok) {
+                alert("Deleting process failed!!")
+            }
+        })
+    })
+}
 
-const userFormNew = document.getElementById('user_form_new');
 
-userFormNew.addEventListener('submit', (e) => {
-    const roles = [];
-    for (let i = 0; i < roleById.options.length; i++) {
-        if (roleById.options[i].selected) {
-            roles.push({
-                id: roleById.options[i].value, name: roleById.options[i].text
-            });
+//Utils
+
+function showModal(form, modal, id) {
+    modal.show()
+    fillRoles(form)
+    fetch(URL + `/${id}`).then(response => {
+        response.json().then(user => {
+            $(`[name="username"]`,form).val(user.username)
+            $(`[name="id"]`,form).val(user.id)
+            $(`[name="firstName"]`,form).val(user.firstName)
+            $(`[name="lastName"]`,form).val(user.lastName)
+            $(`[name="yearOfBirth"]`,form).val(user.yearOfBirth)
+            $(`[name="balance"]`,form).val(user.balance)
+            $(`[name="email"]`,form).val(user.email)
+            $(`[name="password"]`,form).val(user.password)
+        })
+    })
+}
+function fillRoles(form) {
+    roleList.forEach(role => {
+        let option = `<option value="${role.id}">
+                                 ${role.name}
+                            </option>`
+        $(`[name="roles"]`, form).append(option)
+    })
+}
+function getRole(form) {
+    let role = []
+    let options = $(`[name="roles"]`, form)[0].options
+    for (let i = 0; i < options.length; i++) {
+        if (options[i].selected) {
+            role.push(roleList[i])
         }
     }
-    console.log(roles)
-    const user = {
-        username: userNameField.value,
-        firstName: firstNameField.value,
-        lastName: lastNameField.value,
-        yearOfBirth: yearOfBirthField.value,
-        balance: balanceField.value,
-        email: emailField.value,
-        password: passwordField.value,
-        role: roles
-    }
-
-    fetch(`${URL}`, {
-        method: 'post', headers: {
-            'Content-type': 'application/json',
-        }, body: JSON.stringify(user),
-    })
-        .then(res => res.json())
-        .then(data => {
-            const dataArr = []
-            dataArr.push(data)
-            renderTable(dataArr)
-            userFormNew.reset()
-            $('[href="#users_table"]').tab('show')
-
-        })
-        .catch(err => console.error(err));
-});
-
-// delete & edit
-userTable.addEventListener('click', (e) => {
-    e.preventDefault()
-    if (e.target.id === 'delbtn') {
-        fetch(`${URL}/${e.target.dataset.id}`)
-            .then(res => res.json())
-            .then(data => {
-                let roles = '';
-                data.role.forEach(role => roles += role.name + "  ")
-                document.querySelector("#idDel").value = data.id
-                document.querySelector("#usernameDel").value = data.username
-                document.querySelector("#firstnameDel").value = data.firstName
-                document.querySelector("#lastnameDel").value = data.lastName
-                document.querySelector("#yearOfBirthDel").value = data.yearOfBirth
-                document.querySelector("#balanceDel").value = data.balance
-                document.querySelector("#emailDel").value = data.email
-                document.querySelector("#roles_delete").value = roles
-                console.log(roles)
-            })
-    } else if (e.target.id === 'editbtn') {
-        fetch(`${URL}/${e.target.dataset.id}`)
-            .then(res => res.json())
-            .then(data => {
-                document.querySelector("#usernameEdit").value = data.username
-                document.querySelector("#firstnameEdit").value = data.firstName
-                document.querySelector("#lastnameEdit").value = data.lastName
-                document.querySelector("#yearOfBirthEdit").value = data.yearOfBirth
-                document.querySelector("#balanceEdit").value = data.balance
-                document.querySelector("#emailEdit").value = data.email
-                fetch(roleURL)
-                    .then(res => res.json())
-                    .then(rolesData => {
-                        let options = '';
-                        for (const [id, name] of Object.entries(rolesData)) {
-                            const selected = data.role.some(role => role.id === id) ? 'selected' : '';
-                            options += `<option value="${Number(id) + 1}" ${selected}>${name.name}</option>`;
-                        }
-
-                        $('#roles_edit').html(options);
-                        $('#editModal').modal()
-
-                    })
-                    .catch(err => console.error(err));
-            });
-
-
-    }
-})
-
-
-let modalFormDelete = document.querySelector('#modal__form__delete');
-
-modalFormDelete.addEventListener('submit', (e) => {
-    let userId = document.querySelector("#idDel").value
-
-    fetch(`${URL}/${userId}`, {
-        method: "delete"
-    })
-        .then(res => console.log(res))
-        .then(() => {
-            outputUser = ''
-        })
-    fetch(URL)
-        .then(res => console.log(res))
-        .then(() => {
-            outputUser = ''
-            fetch(URL)
-                .then(res => res.json())
-                .then(data => renderTable(data))
-        })
-
-})
-
-
-let modalFormEdit = document.querySelector('#editModalForm');
-let roleEdit = document.querySelector('#roles_edit')
-
-modalFormEdit.addEventListener('submit', (e) => {
-    e.preventDefault()
-    const rol = [];
-    for (let i = 1; i < roleEdit.options.length + 1; i++) {
-        if (roleEdit.options[i - 1].selected) {
-            rol.push({
-                id: roleEdit.options[i - 1].value, name: roleEdit.options[i - 1].text
-            });
-        }
-    }
-    console.log(rol)
-    const user = {
-        id: document.querySelector("#idEdit").value,
-        username: document.querySelector("#usernameEdit").value,
-        firstName: document.querySelector("#firstNameEdit").value,
-        lastName: document.querySelector("#lastNameEdit").value,
-        yearOfBirth: document.querySelector("#yearOfBirthEdit").value,
-        balance: document.querySelector("#balanceEdit").value,
-        email: document.querySelector("#emailEdit").value,
-        password: passwordField.value,
-        role: rol
-    }
-    fetch(`${URL}`, {
-        method: 'put', headers: {
-            'Content-type': 'application/json',
-        }, body: JSON.stringify(user),
-    })
-        .then(res => console.log(res))
-        .then(() => {
-            $('#editModal').modal('hide')
-            outputUser = ''
-            fetch(URL)
-                .then(res => res.json())
-                .then(data => renderTable(data))
-        })
-})
+    return role
+}
