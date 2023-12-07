@@ -31,7 +31,7 @@ public class AppRestController {
     }
 
     @GetMapping("/user")
-    public ModelAndView index(Model model, Principal principal) {
+    public ModelAndView userPage(Model model, Principal principal) {
         ModelAndView mav = new ModelAndView("user");
         User user = userService.findOne(principal.getName());
         model.addAttribute("user", user);
@@ -39,7 +39,7 @@ public class AppRestController {
     }
 
     @GetMapping("/admin")
-    public ModelAndView startPage(ModelMap model, Principal principal) {
+    public ModelAndView adminPage(ModelMap model, Principal principal) {
         ModelAndView admin = new ModelAndView("admin");
         User user = userService.findOne(principal.getName());
         model.addAttribute("user", user);

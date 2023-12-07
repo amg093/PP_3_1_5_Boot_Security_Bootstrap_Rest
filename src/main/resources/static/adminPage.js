@@ -27,7 +27,6 @@ function getAllUsers() {
                         <td>${user.yearOfBirth}</td>
                         <td>${user.balance}</td>
                         <td>${user.email}</td>
-                        <td>${user.password}</td>
                         <td>${user.roles.map(r => r.name.substring(5))}</td>  
                         <td>
                             <button type="button" class="btn btn-info text-white" data-bs-toggle="modal"
