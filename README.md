@@ -1,7 +1,7 @@
 # PP_3_1_5_Boot_Security_Bootstrap_Rest
 
-Admin login:pass => admin:admin
-User login:pass => user:user
+Admin login:pass => admin@mail.ru:admin
+User login:pass => user@mail.ru:user
 
 Задание:
 1. Написать Rest-контроллеры для вашего приложения.
