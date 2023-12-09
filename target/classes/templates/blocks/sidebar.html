@@ -1,0 +1,16 @@
+<header th:fragment="sidebar" xmlns:sec="http://www.w3.org/1999/xhtml">
+    <nav class="d-flex flex-column">
+        <div class="nav flex-column nav-pills">
+            <button sec:authorize="hasRole('ROLE_ADMIN')" class="nav-link text-start active"
+                    id="nav-admin-tab"
+                    data-bs-toggle="tab"
+                    data-bs-target="#nav-admin" type="button" aria-selected="true">Admin
+            </button>
+            <button th:each="scope : ${#authentication.authorities}"
+                    th:class="'nav-link text-start '+ ${scope.getAuthority().equals('ROLE_USER')? 'active':''}"
+                    id="nav-user-tab" data-bs-toggle="tab" data-bs-target="#nav-user" type="button"
+                    aria-selected="false">User
+            </button>
+        </div>
+    </nav>
+</header>
